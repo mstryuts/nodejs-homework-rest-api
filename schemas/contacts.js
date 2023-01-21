@@ -6,6 +6,16 @@ const addContactSchema = Joi.object({
   phone: Joi.string().min(10).required(),
 });
 
+const favoriteSchema = Joi.object({
+  favorite: Joi.bool().required(),
+});
+
+module.exports = {
+  favoriteSchema,
+  addContactSchema,
+};
+
 module.exports = {
   addContactSchema,
+  favoriteSchema,
 };
