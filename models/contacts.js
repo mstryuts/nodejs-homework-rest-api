@@ -15,6 +15,14 @@ const contactSchema = Schema(
       type: Boolean,
       default: false,
     },
+    owner: {
+      type: Schema.ObjectId,
+      ref: "user",
+    },
+    token: {
+      type: String,
+      default: null,
+    },
   },
   {
     versionKay: false,
