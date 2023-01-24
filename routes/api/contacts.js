@@ -1,6 +1,7 @@
 const express = require("express");
 const { addContactSchema, favoriteSchema } = require("../../schemas/contacts");
 const { validateBody, validationFavorite } = require("../../middleware/index");
+const { auth } = require("../../middleware/auth");
 
 const router = express.Router();
 
@@ -13,11 +14,11 @@ const {
   changeContactStatus,
 } = require("../../controllers/contact.controller");
 
-router.get("/", getContacts);
+router.get("/", auth, getContacts);
 
 router.get("/:contactId", getContact);
 
-router.post("/", validateBody(addContactSchema), createContact);
+router.post("/", auth, validateBody(addContactSchema), createContact);
 
 router.delete("/:contactId", deleteContact);
 
