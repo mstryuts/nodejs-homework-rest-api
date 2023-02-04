@@ -12,3 +12,4 @@ router.post("/login", validateBody(joiLoginSchema), login);
 router.get("/logout", auth, logout);
 
 module.exports = router;
+// 1
