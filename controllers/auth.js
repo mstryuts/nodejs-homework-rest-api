@@ -2,6 +2,7 @@ const { User } = require("../models/user");
 const { Conflict, Unauthorized } = require("http-errors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
 
 async function register(req, res, next) {
   try {
@@ -10,15 +11,22 @@ async function register(req, res, next) {
     if (user) {
       throw new Conflict(`User with ${email} already exist`);
     }
+    const avatarURL = gravatar.url(email);
+
     const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
     // eslint-disable-next-line no-unused-vars
-    const result = await User.create({ name, email, password: hashPassword });
+    const result = await User.create({
+      name,
+      email,
+      password: hashPassword,
+      avatarURL,
+    });
 
     res.status(201).json({
       status: "Created",
       code: 201,
       data: {
-        user: { email, name },
+        user: { email, name, avatarURL },
       },
     });
   } catch (error) {
