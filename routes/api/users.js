@@ -1,6 +1,10 @@
 const express = require("express");
 
-const { getCurrent, updateAvatar } = require("../../controllers/users");
+const {
+  getCurrent,
+  updateAvatar,
+  verifyEmail,
+} = require("../../controllers/users");
 const { auth } = require("../../middleware/auth");
 const { upload } = require("../../middleware/upload");
 const tryCatchWrapper = require("../../middleware/tryCatchWrapper");
@@ -14,5 +18,8 @@ router.patch(
   upload.single("avatar"),
   tryCatchWrapper(updateAvatar)
 );
+router.get("/verify/:verificationToken", tryCatchWrapper(verifyEmail));
 
 module.exports = router;
+
+// 1
