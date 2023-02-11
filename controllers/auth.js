@@ -3,6 +3,8 @@ const { Conflict, Unauthorized } = require("http-errors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
+const { nanoid } = require("nanoid");
+const sendEmail = require("../helpers/sendEmail");
 
 async function register(req, res, next) {
   try {
@@ -12,6 +14,14 @@ async function register(req, res, next) {
       throw new Conflict(`User with ${email} already exist`);
     }
     const avatarURL = gravatar.url(email);
+    const verificationToken = nanoid();
+
+    const mail = {
+      to: email,
+      subject: "Verification email",
+      html: `<a target="_blank" href="http://localhost:3000/api/users/verify/${verificationToken}">Hi ${name}.Follow this link, for verification </a>`,
+    };
+    await sendEmail(mail);
 
     const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
     // eslint-disable-next-line no-unused-vars
@@ -20,13 +30,14 @@ async function register(req, res, next) {
       email,
       password: hashPassword,
       avatarURL,
+      verificationToken,
     });
 
     res.status(201).json({
       status: "Created",
       code: 201,
       data: {
-        user: { email, name, avatarURL },
+        user: { email, name, avatarURL, verificationToken },
       },
     });
   } catch (error) {
@@ -39,7 +50,7 @@ async function login(req, res, next) {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
-    if (!user || !user.comparePassword(password)) {
+    if (!user || !user.verify || !user.comparePassword(password)) {
       throw new Unauthorized(`Email or password is wrong`);
     }
     const payload = {

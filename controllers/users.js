@@ -2,6 +2,7 @@ const { User } = require("../models/user");
 const path = require("path");
 const fs = require("fs/promises");
 const Jimp = require("jimp");
+const { NotFound } = require("http-errors");
 
 async function getCurrent(req, res, next) {
   const { name, email } = req.user;
@@ -44,4 +45,20 @@ const updateAvatar = async (req, res) => {
   }
 };
 
-module.exports = { getCurrent, updateAvatar };
+const verifyEmail = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({ verificationToken });
+  if (!user) {
+    throw NotFound();
+  }
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationToken: null,
+  });
+
+  res.json({
+    message: "verify success",
+  });
+};
+
+module.exports = { getCurrent, updateAvatar, verifyEmail };
